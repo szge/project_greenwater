@@ -1,5 +1,5 @@
 import { Tycoon } from "./tycoon";
-const MAX_PLAYERS = 10;
+const MAX_PLAYERS = 5;
 
 export namespace TycoonHandler {
     const tycoons: Tycoon[] = [];

@@ -42,9 +42,8 @@ export class Tycoon {
         // setup initial buttons
         const conveyorButton = ServerStorage.Unlockable.FindFirstChild("ConveyorButton")?.Clone();
         assert(conveyorButton?.IsA("BasePart"));
-        print(typeOf(conveyorButton));
         conveyorButton.Parent = this.tycoonModel;
-        conveyorButton.Position = conveyorButton.Position.add(this.tycoonModel.GetPivot().Position);
+        conveyorButton.PivotTo(conveyorButton.GetPivot().mul(this.tycoonModel.GetPivot()));
 
         const unlockGroup = conveyorButton.GetAttribute("UnlockGroup");
         assert(t.string(unlockGroup));
@@ -136,11 +135,11 @@ export class Tycoon {
                 );
             }
             clone.Parent = this.tycoonModel;
-            clone.Position = clone.Position.add(this.tycoonModel.GetPivot().Position);
+            clone.PivotTo(this.tycoonModel.GetPivot().mul(clone.GetPivot()));
         } else if (object.IsA("Model")) {
             const clone = object.Clone();
             clone.Parent = this.tycoonModel;
-            clone.GetPivot().add(this.tycoonModel.GetPivot().Position);
+            clone.PivotTo(this.tycoonModel.GetPivot().mul(clone.GetPivot()));
         } else {
             error("Unknown object of type " + type(object) + " in Unlockables");
         }
