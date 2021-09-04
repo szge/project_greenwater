@@ -1,0 +1,26 @@
+for (const button of tycoon.Buttons.GetChildren()) {
+    if (button.IsA("BasePart")) {
+        const prompt = new Instance("ProximityPrompt")
+        prompt.HoldDuration = 0.5
+        const promptText = button.GetAttribute("PromptText")
+        assert(t.string(promptText), "oop not string")
+        prompt.ActionText = promptText
+        const costText = button.GetAttribute("PromptText")
+        assert(t.string(costText), "oop not string")
+        prompt.ObjectText = "$" + costText
+        prompt.Parent = button
+
+        prompt.Triggered.Connect((player: Player) => {
+            const unlockID = button.GetAttribute("UnlockID")
+            switch (unlockID) {
+
+            }
+        })
+    }
+}
+
+
+if (this.owner === player && PlayerInfos.GetPlayerInfo(player)?.CanPurchase(cost)) {
+    PlayerInfos.GetPlayerInfo(player)?.UpdateMoneyDelta(-cost);
+    Utils.SetPartEnabled(button, false);
+}
