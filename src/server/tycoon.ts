@@ -134,11 +134,11 @@ export class Tycoon {
                     }
                 );
             }
-            clone.Parent = this.tycoonModel;
+            clone.Parent = this.tycoonModel.TycoonUnlockables;
             clone.PivotTo(this.tycoonModel.GetPivot().mul(clone.GetPivot()));
         } else if (object.IsA("Model")) {
             const clone = object.Clone();
-            clone.Parent = this.tycoonModel;
+            clone.Parent = this.tycoonModel.TycoonUnlockables;
             clone.PivotTo(this.tycoonModel.GetPivot().mul(clone.GetPivot()));
         } else {
             error("Unknown object of type " + type(object) + " in Unlockables");
@@ -149,5 +149,24 @@ export class Tycoon {
         const groupFolder = ServerStorage.Unlockable.FindFirstChild(unlockID);
         assert(groupFolder?.IsA("Folder"));
         this.CreateUnlockGroupObjects(groupFolder);
+        // for special behaviours applied to objects.
+        switch(unlockID) {
+            case "ConveyorGroup": {
+                // for the conveyor, apply a movement vector
+                const belt = this.tycoonModel.TycoonUnlockables.FindFirstChild("Conveyor")?.FindFirstChild("Belt");
+                assert(belt?.IsA("BasePart"));
+                const attStart = belt?.FindFirstChild("AttStart");
+                assert(attStart?.IsA("Attachment"));
+                const attEnd = belt?.FindFirstChild("AttEnd");
+                assert(attEnd?.IsA("Attachment"));
+                // I fricking hate rbxtsc V3 math
+                const direction = attEnd.WorldPosition.sub(attStart.WorldPosition);
+                const conveyorSpeed = belt?.GetAttribute("ConveyorSpeed");
+                assert(t.number(conveyorSpeed));
+                const conveyorVelocity = direction.Unit.mul(conveyorSpeed);
+                belt.AssemblyLinearVelocity = conveyorVelocity;
+                break;
+            }
+        }
     }
 }
