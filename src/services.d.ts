@@ -4,4 +4,5 @@ interface ServerStorage extends Instance {
 		ClaimButton: Part;
 	};
 	Unlockable: Folder;
+	Material: Folder;
 }

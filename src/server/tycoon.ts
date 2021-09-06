@@ -1,5 +1,5 @@
 import { Unlockable } from "./unlockable"
-import { Workspace, ServerStorage } from "@rbxts/services"
+import { Workspace, ServerStorage, Debris } from "@rbxts/services"
 import { t } from "@rbxts/t";
 import { Utils } from "./utils";
 import { PlayerInfos } from "./playerInfo";
@@ -40,26 +40,11 @@ export class Tycoon {
         
         // if the player is creating their first tycoon
         // setup initial buttons
-        const conveyorButton = ServerStorage.Unlockable.FindFirstChild("ConveyorButton")?.Clone();
-        assert(conveyorButton?.IsA("BasePart"));
-        conveyorButton.Parent = this.tycoonModel;
-        conveyorButton.PivotTo(conveyorButton.GetPivot().mul(this.tycoonModel.GetPivot()));
+        const conveyorButton = ServerStorage.Unlockable.FindFirstChild("ConveyorUnlockButton");
+        this.CreateUnlockGroupObjects(conveyorButton);
 
-        const unlockGroup = conveyorButton.GetAttribute("UnlockGroup");
-        assert(t.string(unlockGroup));
-        const promptText = conveyorButton.GetAttribute("PromptText");
-        assert(t.string(promptText));
-        const cost = conveyorButton.GetAttribute("Cost");
-        assert(t.number(cost));
-        Utils.CreateButton(conveyorButton, "$" + cost, promptText,
-            (player: Player) => {
-                if (this.owner === player) {
-                    this.UnlockGroup(unlockGroup);
-                    conveyorButton.Destroy();
-                }
-            }
-        );
-        Utils.SetObjectEnabled(conveyorButton, true);
+        const dropperButton = ServerStorage.Unlockable.FindFirstChild("DropperUnlockButton");
+        this.CreateUnlockGroupObjects(dropperButton);
     }
 
     SetupTycoonUnlocks(): void {
@@ -165,6 +150,26 @@ export class Tycoon {
                 assert(t.number(conveyorSpeed));
                 const conveyorVelocity = direction.Unit.mul(conveyorSpeed);
                 belt.AssemblyLinearVelocity = conveyorVelocity;
+                break;
+            }
+            case "DropperGroup": {
+                const dropper = this.tycoonModel.TycoonUnlockables.FindFirstChild("Dropper");
+                const spawnpoint = dropper?.FindFirstChild("DropSpawnpoint", true);
+                assert(spawnpoint?.IsA("Attachment"));
+                const mineralMaterial = ServerStorage.Material.FindFirstChild("MineralMaterial");
+                assert(mineralMaterial?.IsA("BasePart"));
+                const spawnrate = dropper?.GetAttribute("Rate");
+                assert(t.number(spawnrate));
+                task.spawn(() => {
+                    while (true) {
+                        const drop = mineralMaterial.Clone();
+                        drop.Parent = this.tycoonModel;
+                        print(spawnpoint.Position);
+                        drop.Position = spawnpoint.WorldPosition;
+                        Debris.AddItem(drop, 10);
+                        task.wait(1 / spawnrate);
+                    }
+                });
                 break;
             }
         }
